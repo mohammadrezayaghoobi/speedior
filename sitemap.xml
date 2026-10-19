@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://speedior.ir/</loc>
+    <lastmod>2026-10-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://speedior.ir/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://speedior.ir/"/>
+    <image:image>
+      <image:loc>https://speedior.ir/og-image.png</image:loc>
+      <image:title>تست سرعت اینترنت</image:title>
+    </image:image>
+  </url>
+</urlset>
