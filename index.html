@@ -623,6 +623,132 @@
         margin-inline-start: 4px;
       }
 
+      /* ---------- Activity scores ---------- */
+      .acts {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin-top: 22px;
+      }
+      .act {
+        text-align: center;
+      }
+      .act svg {
+        width: 44px;
+        height: 44px;
+        color: var(--text);
+        opacity: 0.72;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .act .nm {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .dots {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 8px;
+        direction: ltr;
+      }
+      .dots i {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--muted);
+        opacity: 0.35;
+        transition:
+          background 0.3s,
+          opacity 0.3s,
+          transform 0.3s;
+      }
+      .dots i.on {
+        background: var(--text);
+        opacity: 1;
+        transform: scale(1.15);
+      }
+      .act .lv {
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: 6px;
+      }
+
+      /* ---------- Survey ---------- */
+      .survey {
+        margin-top: 16px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 24px 16px 20px;
+        text-align: center;
+        animation: fade 0.45s ease;
+      }
+      .survey h3 {
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.9;
+        margin: 0 0 16px;
+        transition: color 0.3s;
+      }
+      .survey.thanks h3 {
+        color: #1e8bf0;
+        font-size: 17px;
+      }
+      .scale {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        background: var(--track);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .scale button {
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 15px;
+        padding: 13px 0;
+        cursor: pointer;
+        border-inline-start: 1px solid rgba(128, 128, 128, 0.25);
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .scale button:first-child {
+        border-inline-start: 0;
+      }
+      @media (hover: hover) {
+        .scale:not(.done) button:hover {
+          background: #1e8bf0;
+          color: #fff;
+        }
+      }
+      .scale button.sel {
+        background: #1e8bf0;
+        color: #fff;
+        font-weight: 700;
+      }
+      .scale.done button {
+        cursor: default;
+      }
+      .ends {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 10px;
+      }
+      .svnote {
+        margin: 14px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
       /* ---------- Buttons / Footer ---------- */
       .btns {
         display: flex;
@@ -796,6 +922,13 @@
         display: inline-block;
         animation: beat 1.4s ease-in-out infinite;
       }
+      footer .clicky-wrap {
+        margin-top: 12px;
+        line-height: 0;
+      }
+      footer .clicky-wrap img {
+        opacity: 0.7;
+      }
       @keyframes beat {
         0%,
         100% {
@@ -806,12 +939,9 @@
         }
       }
     </style>
-    <a title="Google Analytics Alternative" href="https://clicky.com/101513620"
-      ><img
-        alt="Clicky"
-        src="//static.getclicky.com/media/links/badge.gif"
-        border="0"
-    /></a>
+    <!-- Clicky Analytics -->
+    <script async data-id="101513620" src="//static.getclicky.com/js"></script>
+    <script async data-id="101513620" src="/02e3ecd541.js"></script>
   </head>
   <body>
     <main class="hero" id="main">
@@ -952,11 +1082,36 @@
               <div><span>پینگ</span><b id="rPing">—</b><em>ms</em></div>
               <div><span>جیتر</span><b id="rJit">—</b><em>ms</em></div>
             </div>
+            <div
+              class="acts"
+              id="acts"
+              aria-label="تحلیل کیفیت اتصال برای کاربردهای مختلف"
+            ></div>
             <div class="info" data-info></div>
             <div class="btns">
               <button class="again" id="again">تست دوباره</button>
               <button class="save" id="save">ذخیره تصویر</button>
             </div>
+          </div>
+
+          <div class="survey" id="survey">
+            <h3 id="svTitle">
+              چقدر احتمال دارد ارائه‌دهنده اینترنت خود را به دوست یا همکارتان
+              پیشنهاد کنید؟
+            </h3>
+            <div
+              class="scale"
+              id="scale"
+              role="radiogroup"
+              aria-label="امتیاز"
+            ></div>
+            <div class="ends">
+              <span>اصلاً احتمال ندارد</span><span>بسیار محتمل است</span>
+            </div>
+            <p class="svnote" id="svNote" hidden>
+              امتیاز شما ناشناس ثبت می‌شود و فقط برای آمار کیفیت ارائه‌دهندگان
+              اینترنت استفاده می‌شود.
+            </p>
           </div>
         </section>
 
@@ -1111,6 +1266,16 @@
 
     <footer>
       ساخته شده با <span class="heart">♥</span> توسط محمدرضا یعقوبی
+      <div class="clicky-wrap">
+        <a
+          title="Google Analytics Alternative"
+          href="https://clicky.com/101513620"
+          ><img
+            alt="Clicky"
+            src="//static.getclicky.com/media/links/badge.gif"
+            border="0"
+        /></a>
+      </div>
     </footer>
 
     <script async data-id="101513620" src="//static.getclicky.com/js"></script>
@@ -1324,8 +1489,17 @@
           $("rUl").textContent = fmt(u);
           $("rPing").textContent = fmtMs(pj.ping);
           $("rJit").textContent = fmtMs(pj.jitter);
-          lastResult = { d, u, ping: pj.ping, jitter: pj.jitter };
+          lastResult = {
+            d,
+            u,
+            ping: pj.ping,
+            jitter: pj.jitter,
+            testId: uuid(),
+          };
+          renderActs(lastResult);
+          resetSurvey();
           show("result");
+          animateDots();
         } catch (e) {
           show("home");
           $("err").textContent =
@@ -1361,7 +1535,7 @@
       }
 
       /* ---------- IP & Server ---------- */
-      const info = { ip: "", isp: "", colo: "", loaded: false };
+      const info = { ip: "", isp: "", asn: null, colo: "", loaded: false };
       const ICON_USER =
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>';
       const ICON_SERVER =
@@ -1370,9 +1544,9 @@
         const wait = "در حال شناسایی…";
         const html = `
     <div class="it"><span class="ico">${ICON_USER}</span><div>
-      <b>${info.loaded ? info.ip || "—" : wait}</b><small>${info.isp || ""}</small></div></div>
+      <b>${info.loaded ? esc(info.ip) || "—" : wait}</b><small>${esc(info.isp)}</small></div></div>
     <div class="it"><span class="ico">${ICON_SERVER}</span><div>
-      <b>${info.loaded ? "Cloudflare" : wait}</b><small>${info.colo ? "Data center: " + info.colo : ""}</small></div></div>`;
+      <b>${info.loaded ? "Cloudflare" : wait}</b><small>${info.colo ? "Data center: " + esc(info.colo) : ""}</small></div></div>`;
         document
           .querySelectorAll("[data-info]")
           .forEach((el) => (el.innerHTML = html));
@@ -1384,6 +1558,7 @@
           ).json();
           info.ip = m.clientIp || "";
           info.isp = m.asOrganization || "";
+          info.asn = Number(m.asn) || null;
           info.colo = m.colo || "";
         } catch (e) {
           try {
@@ -1496,6 +1671,163 @@
           setTimeout(() => URL.revokeObjectURL(a.href), 3000);
         }, "image/png");
       }
+
+      /* ---------- Helpers ---------- */
+      const esc = (x) =>
+        String(x == null ? "" : x).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      function uuid() {
+        if (crypto.randomUUID) return crypto.randomUUID();
+        const b = crypto.getRandomValues(new Uint8Array(16));
+        b[6] = (b[6] & 15) | 64;
+        b[8] = (b[8] & 63) | 128;
+        const h = [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
+        return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+      }
+
+      /* ---------- Activity scores (1 to 5) ---------- */
+      const tierUp = (v, cuts) =>
+        cuts.reduce((s, c) => s + (v >= c ? 1 : 0), 1); // higher is better
+      const tierLow = (v, cuts) =>
+        cuts.reduce((s, c) => s - (v > c ? 1 : 0), 5); // lower is better
+      function activityScores({ d, u, ping, jitter }) {
+        const m = Math.min(d, u);
+        const jit = tierLow(jitter, [5, 10, 20, 40]);
+        return {
+          web: Math.min(
+            tierUp(d, [0.5, 2, 5, 10]),
+            tierLow(ping, [100, 200, 350, 600]),
+          ),
+          game: Math.min(
+            tierUp(m, [0.25, 0.6, 1.5, 4]),
+            tierLow(ping, [20, 40, 70, 120]),
+            jit,
+          ),
+          stream: tierUp(d, [1.5, 3, 5, 25]),
+          call: Math.min(
+            tierUp(m, [0.5, 1, 1.8, 3]),
+            tierLow(ping, [80, 150, 250, 400]),
+            jit,
+          ),
+        };
+      }
+      const ACT_NAMES = {
+        web: "وب‌گردی",
+        game: "بازی آنلاین",
+        stream: "استریم ویدیو",
+        call: "تماس تصویری",
+      };
+      const LEVELS = ["", "بسیار ضعیف", "ضعیف", "متوسط", "خوب", "عالی"];
+      const ACT_ICONS = {
+        web: '<rect x="3" y="4" width="18" height="15" rx="2.5"/><path d="M3 8.5h18M6 6.3h.01M8.5 6.3h.01"/><rect x="6" y="11" width="5" height="5" rx="1"/><path d="M14 12h4M14 15h3"/>',
+        game: '<path d="M7 8h10a4.5 4.5 0 0 1 4.4 5.4l-.7 3.4a2.6 2.6 0 0 1-4.4 1.3L14.5 16h-5l-1.8 2.1a2.6 2.6 0 0 1-4.4-1.3l-.7-3.4A4.5 4.5 0 0 1 7 8z"/><path d="M8 10.5v3M6.5 12h3M15.5 11h.01M17.5 13h.01"/>',
+        stream:
+          '<rect x="3" y="4.5" width="18" height="13" rx="2.5"/><path d="M10 8.5v5l4.2-2.5z"/><path d="M6 20h12"/>',
+        call: '<rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="12" cy="10" r="2.6"/><path d="M7 18c.4-2.6 2.6-3.7 5-3.7s4.6 1.1 5 3.7"/>',
+      };
+      function renderActs(r) {
+        const sc = activityScores(r);
+        $("acts").innerHTML = Object.keys(ACT_NAMES)
+          .map(
+            (k) => `
+    <div class="act" title="${ACT_NAMES[k]}: ${LEVELS[sc[k]]}">
+      <svg viewBox="0 0 24 24" aria-hidden="true">${ACT_ICONS[k]}</svg>
+      <div class="nm">${ACT_NAMES[k]}</div>
+      <div class="dots" role="img" aria-label="${sc[k].toLocaleString("fa-IR")} از ۵">${[1, 2, 3, 4, 5].map((i) => `<i ${i <= sc[k] ? "data-on" : ""}></i>`).join("")}</div>
+      <div class="lv">${LEVELS[sc[k]]}</div>
+    </div>`,
+          )
+          .join("");
+      }
+      function animateDots() {
+        setTimeout(
+          () =>
+            document
+              .querySelectorAll("#acts .dots i[data-on]")
+              .forEach((el, i) =>
+                setTimeout(() => el.classList.add("on"), i * 45),
+              ),
+          300,
+        );
+      }
+
+      /* ---------- Survey (1 to 10) ---------- */
+      const SURVEY_MIN = 1,
+        SURVEY_MAX = 10;
+      const SURVEY_ENDPOINT = ""; // بعداً: مثلاً "/api/survey.php" (با PHP و MySQL)
+      function resetSurvey() {
+        const name = info.isp || "ارائه‌دهنده اینترنت خود";
+        $("svTitle").textContent =
+          `چقدر احتمال دارد ${name} را به دوست یا همکارتان پیشنهاد کنید؟`;
+        $("survey").classList.remove("thanks");
+        const sc = $("scale");
+        sc.classList.remove("done");
+        sc.innerHTML = "";
+        for (let i = SURVEY_MIN; i <= SURVEY_MAX; i++) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.dataset.v = i;
+          b.textContent = i.toLocaleString("fa-IR");
+          b.setAttribute("role", "radio");
+          b.setAttribute("aria-checked", "false");
+          sc.appendChild(b);
+        }
+        $("svNote").hidden = !SURVEY_ENDPOINT;
+      }
+      function buildSurveyPayload(score) {
+        // ساختار تخت (flat): هر کلید = یک ستون MySQL
+        const r = lastResult;
+        return {
+          schema_version: 1,
+          test_id: r.testId, // UUID یکتا برای جلوگیری از ثبت تکراری
+          submitted_at_utc: new Date()
+            .toISOString()
+            .slice(0, 19)
+            .replace("T", " "), // آماده DATETIME
+          score: score, // عدد صحیح ۱ تا ۱۰
+          provider_name: info.isp || null,
+          provider_asn: info.asn || null,
+          server_colo: info.colo || null,
+          download_mbps: +r.d.toFixed(2),
+          upload_mbps: +r.u.toFixed(2),
+          ping_ms: +r.ping.toFixed(1),
+          jitter_ms: +r.jitter.toFixed(1),
+        };
+      }
+      async function submitSurvey(payload) {
+        console.info("survey payload:", payload);
+        if (!SURVEY_ENDPOINT) return;
+        try {
+          await fetch(SURVEY_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            keepalive: true,
+          });
+        } catch (e) {}
+      }
+      $("scale").addEventListener("click", (e) => {
+        const b = e.target.closest("button"),
+          sc = $("scale");
+        if (!b || sc.classList.contains("done") || !lastResult) return;
+        sc.classList.add("done");
+        sc.querySelectorAll("button").forEach((x) =>
+          x.setAttribute("aria-checked", x === b ? "true" : "false"),
+        );
+        b.classList.add("sel");
+        $("survey").classList.add("thanks");
+        $("svTitle").textContent = "ممنون از مشارکت شما";
+        submitSurvey(buildSurveyPayload(Number(b.dataset.v)));
+      });
 
       $("go").onclick = start;
       $("again").onclick = start;
