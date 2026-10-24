@@ -1551,15 +1551,23 @@
           .querySelectorAll("[data-info]")
           .forEach((el) => (el.innerHTML = html));
       }
+
+      // qwen fix bug - start
       async function loadInfo() {
         try {
           const m = await (
             await fetch(`${BASE}/meta`, { cache: "no-store" })
           ).json();
-          info.ip = m.clientIp || "";
-          info.isp = m.asOrganization || "";
+
+          info.ip = String(m.clientIp || "");
+          info.isp = String(m.asOrganization || "");
           info.asn = Number(m.asn) || null;
-          info.colo = m.colo || "";
+
+          if (typeof m.colo === "object" && m.colo !== null) {
+            info.colo = m.colo.iata || m.colo.city || "Unknown";
+          } else {
+            info.colo = String(m.colo || "");
+          }
         } catch (e) {
           try {
             const t = await (
@@ -1574,6 +1582,7 @@
         info.loaded = true;
         renderInfo();
       }
+      // qwen fix bug - finish
 
       /* ---------- Save result as image ---------- */
       async function saveImage() {
