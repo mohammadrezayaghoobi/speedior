@@ -204,6 +204,7 @@ async function start() {
       jitter: pj.jitter,
       testId: uuid(),
     };
+    saveHistory(lastResult);
     renderActs(lastResult);
     resetSurvey();
     show("result");
@@ -535,3 +536,277 @@ $("again").onclick = start;
 $("save").onclick = saveImage;
 renderInfo();
 loadInfo();
+
+// Claude add history of speedtest
+(() => {
+  "use strict";
+
+  const KEY = "speedtest_history_v1";
+  const MAX = 10;
+  const CHART_SRC =
+    "https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js";
+
+  const el = (id) => document.getElementById(id);
+  const num = (n, d) =>
+    n.toLocaleString("fa-IR", {
+      minimumFractionDigits: d,
+      maximumFractionDigits: d,
+    });
+  const speed = (n) => num(n, n >= 100 ? 0 : 2);
+  const ms = (n) => num(n, n < 10 ? 1 : 0);
+  const fullDate = (t) =>
+    new Date(t).toLocaleString("fa-IR-u-ca-persian", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  const shortDate = (t) =>
+    new Date(t).toLocaleString("fa-IR-u-ca-persian", {
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+  /* ---------- ذخیره‌سازی ---------- */
+  let memory = []; // پشتیبان وقتی localStorage در دسترس نیست
+  const valid = (e) =>
+    e &&
+    Number.isFinite(e.t) &&
+    ["d", "u", "ping", "jitter"].every(
+      (k) => Number.isFinite(e[k]) && e[k] >= 0,
+    );
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return (Array.isArray(arr) ? arr.filter(valid) : []).slice(-MAX);
+    } catch (e) {
+      return memory.slice(-MAX);
+    }
+  }
+  function store(list) {
+    memory = list.slice();
+    try {
+      localStorage.setItem(KEY, JSON.stringify(list));
+    } catch (e) {}
+  }
+  function save(r) {
+    if (!r) return;
+    const round = (x, d) => Math.round(x * 10 ** d) / 10 ** d;
+    const entry = {
+      t: Date.now(),
+      d: round(r.d, 2),
+      u: round(r.u, 2),
+      ping: round(r.ping, 1),
+      jitter: round(r.jitter, 1),
+    };
+    if (!valid(entry)) return;
+    const list = load();
+    list.push(entry); // قدیمی‌ترین ← جدیدترین
+    store(list.slice(-MAX)); // فقط ۱۰ تست آخر
+  }
+  window.saveHistory = save;
+
+  /* ---------- لیست ---------- */
+  function renderList() {
+    const list = load();
+    el("histEmpty").hidden = list.length > 0;
+    el("histScroll").hidden = list.length === 0;
+    el("histRows").innerHTML = list
+      .slice()
+      .reverse()
+      .map(
+        (e, i) =>
+          `<tr${i === 0 ? ' class="latest"' : ""}><td>${fullDate(e.t)}</td><td>${speed(e.d)}</td><td>${speed(e.u)}</td><td>${ms(e.ping)}</td><td>${ms(e.jitter)}</td></tr>`,
+      )
+      .join("");
+    el("histCount").textContent = list.length
+      ? `${num(list.length, 0)} از ${num(MAX, 0)} تست اخیر`
+      : "";
+  }
+
+  /* ---------- Chart.js (بارگذاری تنبل) ---------- */
+  let loader = null;
+  function loadChartJs() {
+    if (window.Chart) return Promise.resolve();
+    if (!loader)
+      loader = new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = CHART_SRC;
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = () => {
+          loader = null;
+          s.remove();
+          reject(new Error("chartjs load failed"));
+        };
+        document.head.appendChild(s);
+      });
+    return loader;
+  }
+  const withTimeout = (p, t) =>
+    Promise.race([
+      p,
+      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), t)),
+    ]);
+
+  function palette() {
+    const cs = getComputedStyle(document.documentElement),
+      v = (n) => cs.getPropertyValue(n).trim();
+    return {
+      dl: v("--dl") || "#14c9be",
+      ul: v("--ul") || "#a855f7",
+      text: v("--text") || "#1a1d23",
+      muted: v("--muted") || "#8a8f98",
+      grid: v("--border") || "#e6e7ea",
+    };
+  }
+
+  let chart = null,
+    token = 0;
+  async function renderChart() {
+    const my = ++token,
+      list = load(),
+      box = el("histChartBox"),
+      msg = el("histMsg");
+    if (chart) {
+      chart.destroy();
+      chart = null;
+    }
+    msg.hidden = true;
+    if (!list.length) {
+      box.hidden = true;
+      return;
+    }
+    box.hidden = false;
+
+    try {
+      await withTimeout(loadChartJs(), 12000);
+    } catch (e) {
+      if (my !== token) return;
+      box.hidden = true;
+      msg.textContent =
+        "بارگذاری نمودار ممکن نشد (اتصال به CDN). لیست تست‌ها همچنان در دسترس است.";
+      msg.hidden = false;
+      return;
+    }
+    if (my !== token || !el("histDlg").open) return; // مودال بسته شده یا درخواست جدیدتری آمده
+
+    const c = palette();
+    Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+    const line = (label, key, color) => ({
+      label,
+      data: list.map((e) => e[key]),
+      borderColor: color,
+      backgroundColor: color,
+      borderWidth: 2.5,
+      tension: 0.3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    });
+    chart = new Chart(el("histCanvas"), {
+      type: "line",
+      data: {
+        labels: list.map((e) => shortDate(e.t)),
+        datasets: [line("دانلود", "d", c.dl), line("آپلود", "u", c.ul)],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        locale: "fa-IR",
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: {
+            rtl: true,
+            labels: { color: c.text, usePointStyle: true, boxWidth: 8 },
+          },
+          tooltip: {
+            rtl: true,
+            textDirection: "rtl",
+            callbacks: {
+              title: (items) => fullDate(list[items[0].dataIndex].t),
+              label: (ctx) =>
+                ` ${ctx.dataset.label}: ${speed(ctx.parsed.y)} Mbps`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              color: c.muted,
+              maxRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: 5,
+            },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: c.grid },
+            ticks: { color: c.muted },
+            title: { display: true, text: "Mbps", color: c.muted },
+          },
+        },
+      },
+    });
+    if (list.length < 2) {
+      msg.textContent = "برای دیدن روند، حداقل دو تست لازم است.";
+      msg.hidden = false;
+    }
+  }
+
+  /* ---------- باز و بسته کردن مودال ---------- */
+  function openHistory() {
+    const d = el("histDlg");
+    renderList();
+    if (typeof d.showModal === "function") {
+      if (!d.open) d.showModal();
+    } else d.setAttribute("open", "");
+    document.documentElement.style.overflow = "hidden"; // قفل اسکرول پس‌زمینه
+    renderChart();
+  }
+  function onClosed() {
+    document.documentElement.style.overflow = "";
+    token++;
+    if (chart) {
+      chart.destroy();
+      chart = null;
+    }
+  }
+  function closeHistory() {
+    const d = el("histDlg");
+    if (typeof d.close === "function") d.close();
+    else {
+      d.removeAttribute("open");
+      onClosed();
+    }
+  }
+
+  el("histBtn").addEventListener("click", openHistory);
+  el("histClose").addEventListener("click", closeHistory);
+  el("histDlg").addEventListener("close", onClosed);
+  el("histDlg").addEventListener("click", (e) => {
+    if (e.target === el("histDlg")) closeHistory();
+  }); // کلیک روی پس‌زمینه
+  el("histClear").addEventListener("click", () => {
+    if (!confirm("تاریخچه تست‌ها پاک شود؟")) return;
+    store([]);
+    renderList();
+    renderChart();
+  });
+
+  // هماهنگی نمودار با تغییر تم روشن/تیره سیستم
+  const mq = window.matchMedia && matchMedia("(prefers-color-scheme: dark)");
+  if (mq) {
+    const onTheme = () => {
+      if (el("histDlg").open) renderChart();
+    };
+    mq.addEventListener
+      ? mq.addEventListener("change", onTheme)
+      : mq.addListener(onTheme);
+  }
+})();

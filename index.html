@@ -341,6 +341,9 @@
             <div class="btns">
               <button class="again" id="again">تست دوباره</button>
               <button class="save" id="save">ذخیره تصویر</button>
+              <button class="hist-btn" id="histBtn" type="button">
+                مشاهده تاریخچه
+              </button>
             </div>
           </div>
 
@@ -544,6 +547,50 @@
       </div> -->
     </footer>
 
+    <dialog class="hist" id="histDlg" aria-labelledby="histTitle">
+      <div class="hist-head">
+        <h2 id="histTitle">تاریخچه تست‌ها</h2>
+        <button class="hist-x" id="histClose" type="button" aria-label="بستن">
+          ×
+        </button>
+      </div>
+
+      <div class="hist-body">
+        <!-- نمودار خطی (Chart.js) -->
+        <div class="hist-chart" id="histChartBox" dir="ltr">
+          <canvas
+            id="histCanvas"
+            role="img"
+            aria-label="نمودار روند سرعت دانلود و آپلود در تست‌های اخیر"
+          ></canvas>
+        </div>
+        <p class="hist-msg" id="histMsg" hidden></p>
+
+        <!-- لیست ۱۰ تست اخیر -->
+        <p class="hist-msg" id="histEmpty" hidden>هنوز تستی ذخیره نشده است.</p>
+        <div class="hist-scroll" id="histScroll">
+          <table class="hist-table" aria-label="لیست تست‌های اخیر">
+            <thead>
+              <tr>
+                <th>تاریخ</th>
+                <th>دانلود<small>Mbps</small></th>
+                <th>آپلود<small>Mbps</small></th>
+                <th>پینگ<small>ms</small></th>
+                <th>جیتر<small>ms</small></th>
+              </tr>
+            </thead>
+            <tbody id="histRows"></tbody>
+          </table>
+        </div>
+
+        <div class="hist-foot">
+          <span id="histCount"></span>
+          <button class="hist-clear" id="histClear" type="button">
+            پاک کردن تاریخچه
+          </button>
+        </div>
+      </div>
+    </dialog>
     <!-- <script async data-id="101513620" src="//static.getclicky.com/js"></script>
     <script async data-id="101513620" src="/02e3ecd541.js"></script> -->
     <script src="./js/script.js" defer></script>

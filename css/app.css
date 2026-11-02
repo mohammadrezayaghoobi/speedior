@@ -757,3 +757,180 @@ footer .clicky-wrap img {
     filter: invert(1);
   }
 }
+
+/* ============ تاریخچه تست‌ها + نمودار ============
+   به انتهای app.css (یا داخل <style>) اضافه کنید.
+   فقط از متغیرهای تم موجود استفاده می‌کند: --card --text --muted --border --dl --ul
+   پس خودکار با حالت روشن/تیره هماهنگ است. */
+
+/* ---- دکمه ---- */
+.hist-btn {
+  padding: 12px 26px;
+  border-radius: 40px;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
+}
+.hist-btn:hover {
+  transform: scale(1.04);
+  border-color: var(--dl);
+}
+
+/* ---- مودال ---- */
+dialog.hist {
+  width: min(600px, calc(100% - 24px));
+  max-height: 88vh;
+  padding: 0;
+  margin: auto;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--card);
+  color: var(--text);
+  font-family: inherit;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+dialog.hist[open] {
+  display: flex;
+  flex-direction: column;
+  animation: histIn 0.25s ease;
+}
+dialog.hist::backdrop {
+  background: rgba(10, 12, 18, 0.55);
+  backdrop-filter: blur(3px);
+}
+@keyframes histIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.hist-head h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+.hist-x {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  font-family: inherit;
+  transition: color 0.2s;
+}
+.hist-x:hover {
+  color: var(--text);
+}
+.hist-body {
+  padding: 16px 18px 18px;
+  overflow: auto;
+}
+
+/* ---- نمودار ---- */
+.hist-chart {
+  position: relative;
+  height: 240px;
+}
+.hist-msg {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ---- جدول (با override روی استایل‌های سراسری table/th/td) ---- */
+.hist-scroll {
+  margin-top: 14px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.hist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.hist-table th,
+.hist-table td {
+  padding: 9px 8px;
+  text-align: center;
+  white-space: nowrap;
+  border-top: 1px solid var(--border);
+}
+.hist-table thead th {
+  border-top: 0;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 12px;
+  vertical-align: bottom;
+}
+.hist-table th small {
+  display: block;
+  font-size: 10px;
+  font-weight: 300;
+  opacity: 0.8;
+}
+.hist-table th:first-child,
+.hist-table td:first-child {
+  text-align: right;
+  padding-inline-start: 12px;
+}
+.hist-table td:nth-child(2) {
+  color: var(--dl);
+  font-weight: 500;
+}
+.hist-table td:nth-child(3) {
+  color: var(--ul);
+  font-weight: 500;
+}
+.hist-table tr.latest td {
+  background: rgba(30, 139, 240, 0.07);
+}
+
+/* ---- پایین مودال ---- */
+.hist-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.hist-clear {
+  border: 0;
+  background: none;
+  color: #ef4444;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 6px 4px;
+}
+.hist-clear:hover {
+  text-decoration: underline;
+}
