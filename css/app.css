@@ -590,6 +590,13 @@ footer {
   color: var(--muted);
   font-weight: 300;
   border-top: 1px solid var(--border);
+
+  /* deepseek */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 /* ---------- Content (SEO) ---------- */
@@ -742,5 +749,11 @@ footer .clicky-wrap img {
   }
   50% {
     transform: scale(1.25);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .github-link img {
+    filter: invert(1);
   }
 }
